@@ -1,0 +1,67 @@
+-- Izveidot tabulu Tesla automašīnu datiem
+CREATE TABLE TeslaCars (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Model TEXT NOT NULL,
+    HourlyRate REAL NOT NULL,
+    PerKmRate REAL NOT NULL
+);
+
+-- Pievienot piemērus Tesla automašīnām
+INSERT INTO TeslaCars (Model, HourlyRate, PerKmRate) 
+VALUES 
+('Model 3', 10.0, 0.5),
+('Model Y', 15.0, 0.7),
+('Model S', 20.0, 1.0),
+('Model X', 25.0, 1.2);
+
+-- Izveidot tabulu klientu datiem
+CREATE TABLE Clients (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    FullName TEXT NOT NULL,
+    Email TEXT NOT NULL UNIQUE
+);
+
+-- Pievienot piemērus klientiem
+INSERT INTO Clients (FullName, Email) 
+VALUES 
+('John Doe', 'john.doe@example.com'),
+('Jane Smith', 'jane.smith@example.com');
+
+-- Izveidot tabulu īres datiem
+CREATE TABLE Rentals (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    ClientID INTEGER NOT NULL,
+    CarID INTEGER NOT NULL,
+    RentalStart DATETIME NOT NULL,
+    RentalEnd DATETIME,
+    DistanceKm REAL,
+    TotalAmount REAL,
+    FOREIGN KEY (ClientID) REFERENCES Clients(ID),
+    FOREIGN KEY (CarID) REFERENCES TeslaCars(ID)
+);
+
+-- Piemērs: reģistrēt jaunu īri
+-- Piemēram, klients 'John Doe' iznomā 'Model 3'
+INSERT INTO Rentals (ClientID, CarID, RentalStart) 
+VALUES 
+(1, 1, '2024-12-16 10:00:00');
+
+-- Atjaunināt īres beigu datus, norādot noslēguma laiku un nobraukto attālumu
+-- Piemēram, īre tiek pabeigta pēc 3 stundām un 50 km
+UPDATE Rentals
+SET RentalEnd = '2024-12-16 13:00:00', DistanceKm = 50,
+    TotalAmount = (3 * 10.0) + (50 * 0.5)
+WHERE ID = 1;
+
+-- Vaicājums: iegūt visu īres datu pārskatu
+SELECT 
+    r.ID AS RentalID,
+    c.FullName AS ClientName,
+    t.Model AS CarModel,
+    r.RentalStart,
+    r.RentalEnd,
+    r.DistanceKm,
+    r.TotalAmount
+FROM Rentals r
+JOIN Clients c ON r.ClientID = c.ID
+JOIN TeslaCars t ON r.CarID = t.ID;
